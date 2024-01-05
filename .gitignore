@@ -1,2 +1,13 @@
 venv/
 */test/
+
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+.idea/
+.vscode/
+.pytest_cache/
+.coverage
+.tox/
+.mypy
