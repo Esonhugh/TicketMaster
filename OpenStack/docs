@@ -4,3 +4,21 @@ Fernet Core: https://github.com/openstack/keystone/blob/master/keystone/token/pr
 permlink: https://github.com/openstack/keystone/blob/adfa92b40d11f94a03af5202da1fc3858bbccbb5/keystone/token/providers/fernet/core.py#L1
 
 GO based token signer: https://github.com/kayrus/openstack-token/blob/master/token/types.go
+
+## My Fernet Token
+
+use like 
+
+```python
+import fernet_utils.core as fernet_utils
+
+keys = fernet_utils.generate_multi_key(
+    [
+        b'xxxx',
+        b'xxxx',
+    ]
+)
+password = "gAAAAABll4dkOYHNN4Wq-xxxxx"
+token = fernet_utils.decrypt_and_disassemble_json(password, keys)
+print(token)
+```

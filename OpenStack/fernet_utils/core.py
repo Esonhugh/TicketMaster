@@ -1,7 +1,7 @@
 from cryptography.fernet import Fernet
 from cryptography import fernet
 # from keystone.token.token_formatters import _PAYLOAD_CLASSES
-from payload import _PAYLOAD_CLASSES
+from .payload import _PAYLOAD_CLASSES
 import json
 import msgpack
 
