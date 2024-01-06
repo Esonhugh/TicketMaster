@@ -49,14 +49,14 @@ def sign_time():
     t = int(time.time())
     return t
 
-def get_token(private_key, namespace, node_name, uid, serviceaccount, extra_nodes=[]):
+def get_token(private_key, namespace, node_name, uid, serviceaccount, extra_nodes, duration):
     full_nodes = [f"https://kubernetes.default.svc.{node_name}"]
     for node in extra_nodes:
         full_nodes.append(node)
     payload = \
         {
             "aud": full_nodes,
-            "exp": sign_time() + 100000,
+            "exp": sign_time() + int(duration),
             "iat": sign_time() - 100000,
             "iss": f"https://kubernetes.default.svc.{node_name}",
             "kubernetes.io": {
@@ -102,6 +102,9 @@ def _parse_args():
         help="Please keep the trailing slash, example: https://xxxx:6443/",
         required=False,
     )
+    parser.add_argument(
+        "-d", metavar="duration", default=100000, help="Default: 100000",
+    )
     return parser.parse_args()
 
 def main():
@@ -115,6 +118,7 @@ def main():
         args.u, # uid
         args.s, # service account name
         args.e, # extra nodes
+        args.d
     )
     logging.info(f"Token: {token}")
 
@@ -131,7 +135,7 @@ def main():
 
         logging.debug(req.text)
         if req.status_code != 200:
-            logging.info("Token is valid")
+            logging.info("Token is invalid")
             return
         logging.info(req.json())
 
