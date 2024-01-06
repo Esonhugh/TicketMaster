@@ -232,10 +232,11 @@ class DomainScopedPayload(BasePayload):
             b_domain_id = cls.convert_uuid_hex_to_bytes(domain_id)
         except ValueError:
             # the default domain ID is configurable, and probably isn't a UUID
-            if domain_id == CONF.identity.default_domain_id:
-                b_domain_id = domain_id
-            else:
-                raise
+            #if domain_id == CONF.identity.default_domain_id:
+            #    b_domain_id = domain_id
+            #else:
+            #    raise
+            b_domain_id = domain_id
         expires_at_int = cls._convert_time_string_to_float(expires_at)
         b_audit_ids = list(map(cls.random_urlsafe_str_to_bytes,
                            audit_ids))
@@ -252,10 +253,11 @@ class DomainScopedPayload(BasePayload):
             # the default domain ID is configurable, and probably isn't a UUID
             if isinstance(payload[2], bytes):
                 payload[2] = payload[2].decode('utf-8')
-            if payload[2] == CONF.identity.default_domain_id:
-                domain_id = payload[2]
-            else:
-                raise
+            #if payload[2] == CONF.identity.default_domain_id:
+            #    domain_id = payload[2]
+            #else:
+            #    raise
+            domain_id = payload[2]
         expires_at_str = cls._convert_float_to_time_string(payload[3])
         audit_ids = list(map(cls.base64_encode, payload[4]))
         system = None
