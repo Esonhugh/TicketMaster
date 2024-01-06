@@ -77,7 +77,7 @@ def decrypt_and_disassemble(keys,token):
                     app_cred_id, thumbprint) = (
                         payload_class.disassemble(payload))
                     
-        return (user_id, methods, system, project_id, domain_id,
+        return (version, user_id, methods, system, project_id, domain_id,
                     expires_at, audit_ids, trust_id, federated_group_ids,
                     identity_provider_id, protocol_id, access_token_id,
                     app_cred_id, thumbprint) 
@@ -86,11 +86,12 @@ def decrypt_and_disassemble(keys,token):
         raise "disassemble error"
 
 def decrypt_and_disassemble_json(keys,token):
-    (user_id, methods, system, project_id, domain_id,
+    (version, user_id, methods, system, project_id, domain_id,
         expires_at, audit_ids, trust_id, federated_group_ids,
         identity_provider_id, protocol_id, access_token_id,
         app_cred_id, thumbprint) = decrypt_and_disassemble(keys, token)
     json_dict = {
+            "version": version,
             "user_id": user_id,
             "methods": methods,
             "system": system,
@@ -109,7 +110,7 @@ def decrypt_and_disassemble_json(keys,token):
     
     return json_dict
 
-def refersh(keys,version, user_id, methods, system, project_id, domain_id,
+def assemble_and_encrypt(keys,version, user_id, methods, system, project_id, domain_id,
                     expires_at, audit_ids, trust_id, federated_group_ids,
                     identity_provider_id, protocol_id, access_token_id,
                     app_cred_id, thumbprint):
@@ -127,21 +128,23 @@ def refersh(keys,version, user_id, methods, system, project_id, domain_id,
     token = keys.encrypt(msg).rstrip(b'=').decode('utf-8')
     return token
 
+def assemble_and_encrypt_json(keys,json_dict):
+    token = assemble_and_encrypt(keys,json_dict["version"], json_dict["user_id"], json_dict["methods"], json_dict["system"], json_dict["project_id"], json_dict["domain_id"],
+                    json_dict["expires_at"], json_dict["audit_ids"], json_dict["trust_id"], json_dict["federated_group_ids"],
+                    json_dict["identity_provider_id"], json_dict["protocol_id"], json_dict["access_token_id"],
+                    json_dict["app_cred_id"], json_dict["thumbprint"])
+    return token
+
 def main():
+    keys = generate_multi_key(_default_keys)
     for password in _test_passwords:
         print("PASSWORD: " + password)
-        keys = generate_multi_key(_default_keys)
+
         json_dic1 = decrypt_and_disassemble_json(keys,password)
         print(json.dumps(json_dic1, indent=4))
-        ( user_id, methods, system, project_id, domain_id,
-                    expires_at, audit_ids, trust_id, federated_group_ids,
-                    identity_provider_id, protocol_id, access_token_id,
-                    app_cred_id, thumbprint) = decrypt_and_disassemble(keys,password)
-        expires_at = '2024-01-31T23:55:19.000000Z'
-        token = refersh(keys, 2, "01b5b2fb7f1547f282dc1c62ff0087e1", ["password"], system, project_id, domain_id,
-                    expires_at, audit_ids, trust_id, federated_group_ids,
-                    identity_provider_id, protocol_id, access_token_id,
-                    app_cred_id, thumbprint)
+
+        json_dic1["expires_at"] = '2024-01-31T23:55:19.000000Z'
+        token = assemble_and_encrypt_json(keys, json_dic1)
         print("export OS_AUTH_TOKEN=" + token)
         print('curl -s -H "X-Auth-Token: $OS_TOKEN" "http://localhost:5000/v3/users" -vvvv')
         json_dic2 = decrypt_and_disassemble_json(keys,token)
