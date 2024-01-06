@@ -18,7 +18,37 @@ keys = fernet_utils.generate_multi_key(
         b'xxxx',
     ]
 )
+
+# decrypt token like
+
 password = "gAAAAABll4dkOYHNN4Wq-xxxxx"
 token = fernet_utils.decrypt_and_disassemble_json(password, keys)
 print(token)
+
+# sign token like
+
+json_dic = {
+    "version": 2,
+    "user_id": "01b5b2fb7f1547f282dc1c62ff0087e1",
+    "methods": [
+        "password"
+    ],
+    "system": null,
+    "project_id": "435e58e7e13f4199918f2c9b792a4b83",
+    "domain_id": null,
+    "expires_at": "2024-01-05T05:37:02.000000Z",
+    "audit_ids": [
+        "zXq4GDjOSGiDkJvNX8UqIA"
+    ],
+    "trust_id": null,
+    "federated_group_ids": null,
+    "identity_provider_id": null,
+    "protocol_id": null,
+    "access_token_id": null,
+    "app_cred_id": null,
+    "thumbprint": null
+}
+password = fernet_utils.assemble_and_encrypt_json(json_dic, keys)
+print(password)
+
 ```
