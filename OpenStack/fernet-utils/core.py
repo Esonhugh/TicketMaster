@@ -47,8 +47,7 @@ def audit_id_gen():
     return random_urlsafe_str()
 
 def decrypt_and_disassemble(keys,token):
-    multi_keys = generate_multi_key(keys)
-    raw_data = multi_keys.decrypt(restore_padding(token))
+    raw_data = keys.decrypt(restore_padding(token))
     serialized_payload = raw_data
     try:
         versioned_payload = msgpack.unpackb(serialized_payload)
@@ -110,10 +109,46 @@ def decrypt_and_disassemble_json(keys,token):
     
     return json_dict
 
+def refersh(keys,version, user_id, methods, system, project_id, domain_id,
+                    expires_at, audit_ids, trust_id, federated_group_ids,
+                    identity_provider_id, protocol_id, access_token_id,
+                    app_cred_id, thumbprint):
+    bytedata = [version]
+
+    payload = _PAYLOAD_CLASSES[version].assemble( user_id, methods, system, project_id, domain_id,
+                    expires_at, audit_ids, trust_id, federated_group_ids,
+                    identity_provider_id, protocol_id, access_token_id,
+                    app_cred_id, thumbprint)
+    for item in payload:
+        bytedata.append(item)
+
+    bytedata = (version,) + payload
+    msg = msgpack.packb(bytedata)
+    token = keys.encrypt(msg).rstrip(b'=').decode('utf-8')
+    return token
+
 def main():
     for password in _test_passwords:
-        json_dic = decrypt_and_disassemble_json(_default_keys,password)
-        print(json.dumps(json_dic, indent=4))
+        print("PASSWORD: " + password)
+        keys = generate_multi_key(_default_keys)
+        json_dic1 = decrypt_and_disassemble_json(keys,password)
+        print(json.dumps(json_dic1, indent=4))
+        ( user_id, methods, system, project_id, domain_id,
+                    expires_at, audit_ids, trust_id, federated_group_ids,
+                    identity_provider_id, protocol_id, access_token_id,
+                    app_cred_id, thumbprint) = decrypt_and_disassemble(keys,password)
+        expires_at = '2024-01-31T23:55:19.000000Z'
+        token = refersh(keys, 2, "01b5b2fb7f1547f282dc1c62ff0087e1", ["password"], system, project_id, domain_id,
+                    expires_at, audit_ids, trust_id, federated_group_ids,
+                    identity_provider_id, protocol_id, access_token_id,
+                    app_cred_id, thumbprint)
+        print("export OS_AUTH_TOKEN=" + token)
+        print('curl -s -H "X-Auth-Token: $OS_TOKEN" "http://localhost:5000/v3/users" -vvvv')
+        json_dic2 = decrypt_and_disassemble_json(keys,token)
+        print(json.dumps(json_dic2, indent=4))
+        print("\n\n")
+
+        
 
 if __name__ == "__main__":
     main()

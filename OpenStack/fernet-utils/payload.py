@@ -1,4 +1,5 @@
 from keystone.common import utils as ks_utils
+from oslo_utils import timeutils
 import uuid
 import datetime
 import base64
@@ -166,8 +167,17 @@ class BasePayload(object):
         for i in range(len(method)):
             if intx & (1 << i):
                 method_list.append(method[i])
-
         return method_list
+    
+    @classmethod
+    def convert_method_list_to_integer(cls, method_list):
+        method = ['external', 'password', 'token', 'oauth1', 'mapped',
+                         'application_credential']
+        intx = 0
+        for i in range(len(method)):
+            if method[i] in method_list:
+                intx |= (1 << i)
+        return intx
     
         
 
