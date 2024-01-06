@@ -1,0 +1,6 @@
+TokenFormatter: https://github.com/openstack/keystone/blob/master/keystone/token/token_formatters.py
+Fernet Core: https://github.com/openstack/keystone/blob/master/keystone/token/providers/fernet/core.py
+
+permlink: https://github.com/openstack/keystone/blob/adfa92b40d11f94a03af5202da1fc3858bbccbb5/keystone/token/providers/fernet/core.py#L1
+
+GO based token signer: https://github.com/kayrus/openstack-token/blob/master/token/types.go

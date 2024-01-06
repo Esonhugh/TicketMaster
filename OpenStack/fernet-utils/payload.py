@@ -7,7 +7,9 @@ import base64
 class BasePayload(object):
     # each payload variant should have a unique version
     version = None
-
+    default_method_list = ['external', 'password', 'token', 'oauth1', 'mapped',
+                         'application_credential']
+     
     @classmethod
     def assemble(cls, user_id, methods, system, project_id, domain_id,
                  expires_at, audit_ids, trust_id, federated_group_ids,
@@ -158,11 +160,10 @@ class BasePayload(object):
         elif isinstance(value, bytes):
             return value.decode('utf-8')
         return value
-    
+
     @classmethod
     def convert_integer_to_method_list(cls, intx):
-        method = ['external', 'password', 'token', 'oauth1', 'mapped',
-                         'application_credential']
+        method = cls.default_method_list
         method_list = []
         for i in range(len(method)):
             if intx & (1 << i):
@@ -171,8 +172,7 @@ class BasePayload(object):
     
     @classmethod
     def convert_method_list_to_integer(cls, method_list):
-        method = ['external', 'password', 'token', 'oauth1', 'mapped',
-                         'application_credential']
+        method = cls.default_method_list
         intx = 0
         for i in range(len(method)):
             if method[i] in method_list:
@@ -180,8 +180,6 @@ class BasePayload(object):
         return intx
     
         
-
-
 class UnscopedPayload(BasePayload):
     version = 0
 
